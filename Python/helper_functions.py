@@ -1,13 +1,15 @@
 import itertools
 import cProfile
-from typing import List, Union
+from typing import List, Union, Set, Tuple, Generator, Optional, Any
 
 
-def compose(a: List[int], b: List[int]):
+def compose(a: Union[Tuple[int, ...], List[int]],
+            b: Union[Tuple[int, ...], List[int]]) -> Optional[Generator[int, Any, None]]:
     if len(a) != len(b):
-        return []
+        return None
     else:
-        return [a[i] for i in b]
+        return (a[i] for i in b)
+        # return [a[i] for i in b]
 
 
 def list_valid(mlist: List[int]) -> bool:
@@ -19,30 +21,30 @@ def list_valid(mlist: List[int]) -> bool:
     return True
 
 
-def inc_list_in_place(mlist: List[int]):
-    list_size = len(mlist)
-    mlist[-1] += 1
-    for index in reversed(range(1, list_size)):
-        if mlist[index] != list_size:
-            break
-        mlist[index] = 0
-        mlist[index - 1] += 1
-    if mlist[0] == list_size:
-        mlist[0] = 0
+# def inc_list_in_place(mlist: List[int]):
+#     list_size = len(mlist)
+#     mlist[-1] += 1
+#     for index in reversed(range(1, list_size)):
+#         if mlist[index] != list_size:
+#             break
+#         mlist[index] = 0
+#         mlist[index - 1] += 1
+#     if mlist[0] == list_size:
+#         mlist[0] = 0
 
 
-def inc_list(olist: List[int]) -> List[int]:
-    list_size = len(olist)
-    nlist = olist[:]
-    nlist[-1] += 1
-    for index in reversed(range(1, list_size)):
-        if nlist[index] != list_size:
-            break
-        nlist[index] = 0
-        nlist[index - 1] += 1
-    if nlist[0] == list_size:
-        nlist[0] = 0
-    return nlist
+# def inc_list(olist: List[int]) -> List[int]:
+#     list_size = len(olist)
+#     nlist = olist[:]
+#     nlist[-1] += 1
+#     for index in reversed(range(1, list_size)):
+#         if nlist[index] != list_size:
+#             break
+#         nlist[index] = 0
+#         nlist[index - 1] += 1
+#     if nlist[0] == list_size:
+#         nlist[0] = 0
+#     return nlist
 
 
 def asc_list_valid(mlist: List[int], max_elem: int):
@@ -75,30 +77,30 @@ def inc_asc_list_in_place(mlist: List[int], max_elem: int):
         mlist[index] = mlist[index - 1] + 1
 
 
-def inc_asc_list(olist: List[int], max_elem: int) -> List[int]:
-    list_size = len(olist)
-    nlist = olist[:]
-    nlist[-1] += 1
-    index_save = None
-    for reverse_index, index in enumerate(reversed(range(1, list_size)), -1):
-        if nlist[index] != max_elem - reverse_index:
-            index_save = index
-            break
-        nlist[index - 1] += 1
-    if index_save is None:
-        index_save = 0
-    if nlist[0] == max_elem - list_size + 2:
-        nlist[0] = 0
-    for index in range(index_save + 1, list_size):
-        nlist[index] = nlist[index - 1] + 1
-    return nlist
+# def inc_asc_list(olist: List[int], max_elem: int) -> List[int]:
+#     list_size = len(olist)
+#     nlist = olist[:]
+#     nlist[-1] += 1
+#     index_save = None
+#     for reverse_index, index in enumerate(reversed(range(1, list_size)), -1):
+#         if nlist[index] != max_elem - reverse_index:
+#             index_save = index
+#             break
+#         nlist[index - 1] += 1
+#     if index_save is None:
+#         index_save = 0
+#     if nlist[0] == max_elem - list_size + 2:
+#         nlist[0] = 0
+#     for index in range(index_save + 1, list_size):
+#         nlist[index] = nlist[index - 1] + 1
+#     return nlist
 
 
 def id_to_list(_id: int, list_size: int) -> List[int]:
     return [(_id // (list_size ** (list_size - i))) % list_size for i in range(1, list_size + 1)]
 
 
-def list_to_id(mlist: List[int]) -> int:
+def _to_id(mlist: Union[Tuple[int, ...], List[int]]) -> int:
     list_size = len(mlist)
     return sum([elem * list_size ** i for i, elem in enumerate(reversed(mlist))])
 
@@ -108,12 +110,12 @@ def get_ident_func(func_size: int) -> (List[int], int):
     # sum([(i - 1) * (func_size ** (func_size - i)) for i in range(1, func_size + 1)])
 
 
-def high_ord_comp_check(func: List[int], max_num: int) -> Union[None, List[List[int]]]:
+def high_ord_comp_check(func: List[int], max_num: int) -> Optional[Set[Tuple[int]]]:
     ident_func = tuple(get_ident_func(len(func))[0])
     checked_funcs = {ident_func, tuple(func)}
     last_func = func
     num_last_checked = 0
-    i = -1
+    i = 0
     while num_last_checked != len(checked_funcs) and i != max_num:
         i += 1
         num_last_checked = len(checked_funcs)
@@ -122,11 +124,12 @@ def high_ord_comp_check(func: List[int], max_num: int) -> Union[None, List[List[
     if num_last_checked != len(checked_funcs):
         print("Too many higher order compositions.")
         return None
-    return [list(func) for func in checked_funcs.difference({ident_func, tuple(func)})]
+    return checked_funcs.difference({ident_func})
+    # return [list(func) for func in checked_funcs.difference({ident_func, tuple(func)})]
 
 
-def get_start_monoid(func_size: int, monoid_size: int, ident: (List[int], int) = None, max_func: int = None) -> List[
-    int]:
+def get_start_monoid(func_size: int, monoid_size: int,
+                     ident: (List[int], int) = None, max_func: int = None) -> List[int]:
     if max_func is None:
         max_func = func_size ** func_size - 1
     if monoid_size > max_func + 1:
@@ -153,7 +156,7 @@ def naive_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:
         closed = True
         for func_pair in itertools.product(current_funcs, current_funcs):
             # print("{0}, {1}".format(func_pair, compose(*func_pair)))
-            if compose(*func_pair) not in funcs_with_ident:
+            if list(compose(*func_pair)) not in funcs_with_ident:  # list() used to be unnecessary...
                 closed = False
                 break
         if closed:
@@ -168,6 +171,9 @@ def naive_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:
     return valid_monoids
 
 
+def funcs_are_above_id(low_id: int, func_set: Set[Tuple[int, ...]], func_size) -> bool:
+    return all(sum([elem * func_size ** i for i, elem in enumerate(reversed(func))]) > low_id for func in func_set)
+    # The sum() function is equivalent to list_to_id, however it is unknown which way is more efficient or more pythonic
 
 
 def comp_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:
@@ -178,19 +184,21 @@ def comp_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:
         raise ValueError("Monoid size too large")
     all_valid_ids = [i for i in range(max_func + 1)]
     all_valid_ids.remove(ident[1])
-    current_monoid = []
 
-    def get_next_func_fam_id():  # This is probably un-pythonic, but...
-        get_next_func_fam_id.counter = getattr(get_next_func_fam_id, "counter", 0) + 1
-        return get_next_func_fam_id.counter
+    # def get_next_func_fam_id():  # This is probably un-pythonic, but...
+    #     get_next_func_fam_id.counter = getattr(get_next_func_fam_id, "counter", -1) + 1
+    #     return get_next_func_fam_id.counter
 
-    for low_index, low_id in enumerate(all_valid_ids[:1-monoid_size]):
-        gen_next_func_obs = ((id_to_list(_id, func_size), get_next_func_fam_id()) for _id in all_valid_ids[low_index:])
+    for low_index, low_id in enumerate(all_valid_ids[:1 - monoid_size]):
+        current_monoid = set()
+        current_high_ord_comps = []
+        gen_next_func_comps = (func_high_ord_comps for _id in all_valid_ids[low_index:]
+                               if (func_high_ord_comps := high_ord_comp_check(id_to_list(_id, func_size),
+                                                                              monoid_size - len(current_monoid)))
+                               is not None and funcs_are_above_id(low_id, func_high_ord_comps, func_size))
         while len(current_monoid) < monoid_size:
-            current_monoid.append(gen_next_func_obs.__next__())
+            current_monoid.add(gen_next_func_comps.__next__())
             print(current_monoid)
-        current_monoid = []
-        del get_next_func_fam_id.counter
 
 
 if __name__ == '__main__':
@@ -200,4 +208,4 @@ if __name__ == '__main__':
     # cProfile.run("print(len(naive_monoid_search(3, 6)))")
     # cProfile.run("print(len(naive_monoid_search(4, 3)))")
     # cProfile.run("print(len(naive_monoid_search(5, 3)))")
-    comp_monoid_search(3, 3)
+    # comp_monoid_search(3, 3)

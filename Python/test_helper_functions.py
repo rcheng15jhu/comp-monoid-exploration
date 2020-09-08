@@ -45,13 +45,13 @@ class Test(TestCase):
         self.assertEqual(hf.id_to_list(2, 3), [0, 0, 2])
         self.assertEqual(hf.id_to_list(2, 2), [1, 0])
 
-    def test_list_to_id(self):
-        self.assertEqual(hf.list_to_id(hf.id_to_list(23, 3)), 23)
-        self.assertEqual(hf.list_to_id(hf.id_to_list(27, 3)), 0)
+    def test__to_id(self):
+        self.assertEqual(hf._to_id(hf.id_to_list(23, 3)), 23)
+        self.assertEqual(hf._to_id(hf.id_to_list(27, 3)), 0)
 
     def test_get_ident_func(self):
         self.assertEqual(hf.get_ident_func(3), ([0, 1, 2], 5))
-        self.assertEqual((hf.list_to_id(hf.get_ident_func(3)[0]), hf.id_to_list(hf.get_ident_func(3)[1], 3)),
+        self.assertEqual((hf._to_id(hf.get_ident_func(3)[0]), hf.id_to_list(hf.get_ident_func(3)[1], 3)),
                          (5, [0, 1, 2]))
 
     def test_high_ord_comp_check(self):

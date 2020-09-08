@@ -1,24 +1,38 @@
 import itertools
 import cProfile
-from typing import List, Union, Set, Tuple, Generator, Optional, Any
+from typing import List, Set, Tuple, Optional
 
 
-def compose(a: Union[Tuple[int, ...], List[int]],
-            b: Union[Tuple[int, ...], List[int]]) -> Optional[Generator[int, Any, None]]:
-    if len(a) != len(b):
-        return None
-    else:
-        return (a[i] for i in b)
-        # return [a[i] for i in b]
+# def compose(a: Union[Tuple[int, ...], List[int]],
+#             b: Union[Tuple[int, ...], List[int]]) -> Union[Tuple[int, ...], List[int]]:
+#     if len(a) != len(b):
+#         return None
+#     # return (a[i] for i in b)
+#     elif isinstance(a, list):
+#         return [a[i] for i in b]
+#     else:
+#         return tuple(a[i] for i in b)
 
 
-def list_valid(mlist: List[int]) -> bool:
-    list_size = len(mlist)
-    for elem in mlist:
-        if elem >= list_size or elem < 0:
-            print("{0} is an invalid list.".format(mlist))
-            return False
-    return True
+def compose_list(a, b) -> Optional[List[int]]:
+    # if len(a) != len(b):
+    #     return None
+    return [a[i] for i in b]
+
+
+def compose_tuple(a, b) -> Optional[Tuple[int, ...]]:
+    # if len(a) != len(b):
+    #     return None
+    return tuple(a[i] for i in b)
+
+
+# def list_valid(mlist: List[int]) -> bool:
+#     list_size = len(mlist)
+#     for elem in mlist:
+#         if elem >= list_size or elem < 0:
+#             print("{0} is an invalid list.".format(mlist))
+#             return False
+#     return True
 
 
 # def inc_list_in_place(mlist: List[int]):
@@ -100,9 +114,9 @@ def id_to_list(_id: int, list_size: int) -> List[int]:
     return [(_id // (list_size ** (list_size - i))) % list_size for i in range(1, list_size + 1)]
 
 
-def _to_id(mlist: Union[Tuple[int, ...], List[int]]) -> int:
-    list_size = len(mlist)
-    return sum([elem * list_size ** i for i, elem in enumerate(reversed(mlist))])
+def _to_id(mlist) -> int:
+    _size = len(mlist)
+    return sum([elem * _size ** i for i, elem in enumerate(reversed(mlist))])
 
 
 def get_ident_func(func_size: int) -> (List[int], int):
@@ -119,8 +133,8 @@ def high_ord_comp_check(func: List[int], max_num: int) -> Optional[Set[Tuple[int
     while num_last_checked != len(checked_funcs) and i != max_num:
         i += 1
         num_last_checked = len(checked_funcs)
-        last_func = compose(func, last_func)
-        checked_funcs.add(tuple(last_func))
+        last_func = compose_tuple(func, last_func)
+        checked_funcs.add(last_func)
     if num_last_checked != len(checked_funcs):
         print("Too many higher order compositions.")
         return None
@@ -156,7 +170,7 @@ def naive_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:
         closed = True
         for func_pair in itertools.product(current_funcs, current_funcs):
             # print("{0}, {1}".format(func_pair, compose(*func_pair)))
-            if list(compose(*func_pair)) not in funcs_with_ident:  # list() used to be unnecessary...
+            if compose_list(*func_pair) not in funcs_with_ident:
                 closed = False
                 break
         if closed:
@@ -176,36 +190,36 @@ def funcs_are_above_id(low_id: int, func_set: Set[Tuple[int, ...]], func_size) -
     # The sum() function is equivalent to list_to_id, however it is unknown which way is more efficient or more pythonic
 
 
-def comp_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:
-    valid_monoids = []
-    ident = get_ident_func(func_size)
-    max_func = func_size ** func_size - 1  # inclusive 0-based
-    if monoid_size > max_func + 1:
-        raise ValueError("Monoid size too large")
-    all_valid_ids = [i for i in range(max_func + 1)]
-    all_valid_ids.remove(ident[1])
-
-    # def get_next_func_fam_id():  # This is probably un-pythonic, but...
-    #     get_next_func_fam_id.counter = getattr(get_next_func_fam_id, "counter", -1) + 1
-    #     return get_next_func_fam_id.counter
-
-    for low_index, low_id in enumerate(all_valid_ids[:1 - monoid_size]):
-        current_monoid = set()
-        current_high_ord_comps = []
-        gen_next_func_comps = (func_high_ord_comps for _id in all_valid_ids[low_index:]
-                               if (func_high_ord_comps := high_ord_comp_check(id_to_list(_id, func_size),
-                                                                              monoid_size - len(current_monoid)))
-                               is not None and funcs_are_above_id(low_id, func_high_ord_comps, func_size))
-        while len(current_monoid) < monoid_size:
-            current_monoid.add(gen_next_func_comps.__next__())
-            print(current_monoid)
-
-
 if __name__ == '__main__':
     print("Hi!")
     # print(len(naive_monoid_search(2, 3)))
     # print(len(naive_monoid_search(3, 3)))
-    # cProfile.run("print(len(naive_monoid_search(3, 6)))")
-    # cProfile.run("print(len(naive_monoid_search(4, 3)))")
-    # cProfile.run("print(len(naive_monoid_search(5, 3)))")
+    cProfile.run("print(len(naive_monoid_search(3, 6)))")
+    cProfile.run("print(len(naive_monoid_search(4, 3)))")
+    cProfile.run("print(len(naive_monoid_search(5, 3)))")
     # comp_monoid_search(3, 3)
+
+
+# def trashed_comp_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:
+#     valid_monoids = []
+#     ident = get_ident_func(func_size)
+#     max_func = func_size ** func_size - 1  # inclusive 0-based
+#     if monoid_size > max_func + 1:
+#         raise ValueError("Monoid size too large")
+#     all_valid_ids = [i for i in range(max_func + 1)]
+#     all_valid_ids.remove(ident[1])
+#
+#     # def get_next_func_fam_id():  # This is probably un-pythonic, but...
+#     #     get_next_func_fam_id.counter = getattr(get_next_func_fam_id, "counter", -1) + 1
+#     #     return get_next_func_fam_id.counter
+#
+#     for low_index, low_id in enumerate(all_valid_ids[:1 - monoid_size]):
+#         current_monoid = set()
+#         current_high_ord_comps = []
+#         gen_next_func_comps = (func_high_ord_comps for _id in all_valid_ids[low_index:]
+#                                if (func_high_ord_comps := high_ord_comp_check(id_to_list(_id, func_size),
+#                                                                               monoid_size - len(current_monoid)))
+#                                is not None and funcs_are_above_id(low_id, func_high_ord_comps, func_size))
+#         while len(current_monoid) < monoid_size:
+#             current_monoid.add(gen_next_func_comps.__next__())
+#             print(current_monoid)

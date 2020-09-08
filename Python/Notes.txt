@@ -1,0 +1,23 @@
+Notes:
+
+- Make it object oriented.
+- Make it recursive.
+- Define a valid range of function ids to check at each recursive level.
+- This will be...oh shit. damn.
+- The valid range of functions potentially changes every...actually, never mind.
+- Hah. We're good.
+- I think...
+- You should only go until there aren't enough functions left to fit the monoid.
+- So monoid_size - len(current_monoid) is the required number of functions left
+  (in some order)
+- For now, still test functions in ascending order, but see if it is possible to test
+  functions in path/loop order. (4-cycle to 3-path to 3-cycle, etc.)
+- When defining the range for the generator of valid ids, it should go between one higher
+  and up until where the number of functions left perfectly matches the number of
+  functions left in the monoid. (Maybe some even further optimization with this, just by
+  studying the behavior of functions near max id.)
+- Each level of recursion may potentially add a valid monoid
+- The first level of recursion may need a special "skip" to composing across.
+- Wait no...I can just define the loop for the cartesian product to be before the current
+  index, and the way the range generator works it should simply fail. I think.
+- Cool, cool...kind of.

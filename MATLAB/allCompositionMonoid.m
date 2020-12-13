@@ -4,9 +4,9 @@ clc;
 
 %Somewhat confusingly named; this is the number of elements within each
 %mapping (e.g. 5 for 11244, 3 for 132.)
-monoidsize = 5;
+monoidsize = 4;
 %Number of mappings within each submonoid.
-submonoidsize = 4;
+submonoidsize = 6;
 validCombos = allValidCombos(monoidsize);
 
 identityNum = (monoidsize^monoidsize - monoidsize)/(monoidsize - 1)^2;

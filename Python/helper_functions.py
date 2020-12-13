@@ -114,6 +114,10 @@ def id_to_list(_id: int, list_size: int) -> List[int]:
     return [(_id // (list_size ** (list_size - i))) % list_size for i in range(1, list_size + 1)]
 
 
+def id_to_tuple(_id: int, list_size: int) -> Tuple[int, ...]:
+    return tuple((_id // (list_size ** (list_size - i))) % list_size for i in range(1, list_size + 1))
+
+
 def _to_id(mlist) -> int:
     _size = len(mlist)
     return sum([elem * _size ** i for i, elem in enumerate(reversed(mlist))])
@@ -124,11 +128,16 @@ def get_ident_func(func_size: int) -> (List[int], int):
     # sum([(i - 1) * (func_size ** (func_size - i)) for i in range(1, func_size + 1)])
 
 
-def high_ord_comp_check(func: List[int], max_num: int) -> Optional[Set[Tuple[int]]]:
+def get_ident_func_tuple(func_size: int) -> (Tuple[int, ...], int):
+    return tuple(i for i in range(func_size)), ((func_size ** func_size) - func_size) / ((func_size - 1) ** 2) - 1  # \
+
+
+def high_ord_comp_check(func, max_num: int) -> Optional[Set[Tuple[int]]]:
     ident_func = tuple(get_ident_func(len(func))[0])
-    checked_funcs = {ident_func, tuple(func)}
+    # func = tuple(func)  # perhaps not necessary if this is only called where func is already tuple
+    checked_funcs = {ident_func, func}
     last_func = func
-    num_last_checked = 0
+    num_last_checked = 1
     i = 0
     while num_last_checked != len(checked_funcs) and i != max_num:
         i += 1
@@ -190,14 +199,35 @@ def funcs_are_above_id(low_id: int, func_set: Set[Tuple[int, ...]], func_size) -
     # The sum() function is equivalent to list_to_id, however it is unknown which way is more efficient or more pythonic
 
 
+class CompComp:
+
+    def __init__(self, func_size, monoid_size):
+        self.func_size = func_size
+        self.monoid_size = monoid_size
+        self.valid_monoids = set()
+        self.num_funcs = func_size ** func_size
+        self.ident_func = get_ident_func_tuple(func_size)
+
+    def find_all_monoids(self):
+        self.finish_monoid([], 0, self.monoid_size)
+
+    def finish_monoid(self, current_monoid, min_id, num_left):
+        cur_func_id = min_id + 1 if min_id == self.ident_func[1] else 0
+        while cur_func_id < self.num_funcs - num_left:
+            higher_order_comps = high_ord_comp_check(id_to_tuple(cur_func_id, self.func_size), num_left)
+            print(higher_order_comps)
+            cur_func_id += 2 if cur_func_id + 1 == self.ident_func[1] else 1
+
 if __name__ == '__main__':
     print("Hi!")
     # print(len(naive_monoid_search(2, 3)))
     # print(len(naive_monoid_search(3, 3)))
-    cProfile.run("print(len(naive_monoid_search(3, 6)))")
-    cProfile.run("print(len(naive_monoid_search(4, 3)))")
-    cProfile.run("print(len(naive_monoid_search(5, 3)))")
+    # cProfile.run("print(len(naive_monoid_search(3, 6)))")
+    # cProfile.run("print(len(naive_monoid_search(4, 3)))")
+    # cProfile.run("print(len(naive_monoid_search(5, 3)))")
     # comp_monoid_search(3, 3)
+    test = CompComp(3, 3)
+    test.find_all_monoids()
 
 
 # def trashed_comp_monoid_search(func_size: int, monoid_size: int) -> List[List[int]]:

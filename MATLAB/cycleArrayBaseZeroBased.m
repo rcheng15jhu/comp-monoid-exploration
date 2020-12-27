@@ -1,4 +1,4 @@
-function [cycledArray] = cycleArrayBase(array,base,invalid)
+function [cycledArray] = cycleArrayBaseZeroBased(array,base,invalid)
 %Cycles an array based on a given base.
 %Different from oldCycleArray, which does not preserve monotonicity.
 tempArray = array;

@@ -15,24 +15,28 @@ identity = validCombos(identityNum,1:end);
 validCombos = validCombos([1:identityNum-1,identityNum+1:end],1:end);
 maxbound = (find(zeros(1,submonoidsize - 1) == 0)) + (monoidsize^monoidsize - submonoidsize - 1);
 
-invalidBases = invalidFirstBases(validCombos,monoidsize) - 1;
+[invalidBases, cycles] = invalidFirstBases(validCombos,monoidsize,submonoidsize);
+invalidBases = invalidBases - 1;
 invalidBases = invalidBases(find(invalidBases < (monoidsize ^ monoidsize - submonoidsize)));
-    
+cycles = cycles - 1;
+cycles = cycles(find(cycles < (monoidsize ^ monoidsize - submonoidsize)));
+
+
 indicesArray = zeros(1,submonoidsize - 1);
 indicesArray = find(indicesArray == 0) - 1;
 currentMonoid = zeros(submonoidsize,monoidsize);
 
 validMonoids = 0;
-
-while(1)    
+while(1)
     currentMonoid(2:end,1:end) = validCombos(indicesArray + 1,1:end);
     currentMonoid(1,1:end) = identity;
     if(validMonoid(currentMonoid))
         validMonoids = validMonoids + 1;
         disp([num2str(validMonoids), ': ', num2str(indicesArray)]);
     end
+        
     if(~all((indicesArray ~= maxbound) == 0))
-        indicesArray = cycleArrayBase(indicesArray,size(validCombos,1),invalidBases);
+        indicesArray = cycleArrayBaseZeroBased(indicesArray,monoidsize^monoidsize-1,invalidBases);
         continue;
     else
         break;

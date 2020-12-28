@@ -1,12 +1,10 @@
-function [closedSub] = closure(x,y,numElements)
+function [closedSub] = closure(x,y,numElements,table)
 %CLOSURE Find the closure of two submonoids
 %   Takes two submonoid arrays X = X' ∪ Core and Y = Y' ∪ Core, and returns
 %   X ∪ Y ∪ X'Y' ∪ X'Y'X' ∪ X'Y'X'Y' ∪ ... ∪ Y'X' ∪ Y'X'Y' ∪ Y'X'Y'X' ∪ ...
 %   Core = X ∩ Y, X' = X - Core, Y' = Y - Core.
 
-validCombos = allValidCombos(numElements);
 id = identity(numElements);
-
 xp = setdiff(x,y);
 yp = setdiff(y,x);
 
@@ -25,9 +23,7 @@ closedSub = [xp,y];
 xpyp = id * ones(1,xpsize*ypsize);
 for i=1:1:xpsize
     for j=1:1:ypsize
-        comp1 = compositionZeroBased(validCombos(xp(i),1:end),validCombos(yp(j),1:end));
-        [~, index1] = ismember(comp1,validCombos,'rows');
-        xpyp(1,(i-1)*ypsize + j) = index1;
+        xpyp(1,(i-1)*ypsize + j) = table(xp(i),yp(j));
     end
 end
 xpyp = setdiff(unique(xpyp),closedSub);
@@ -45,9 +41,7 @@ while(true)
     
     for i = 1:1:tCSize
         for j = 1:1:xpsize
-            comp1 = compositionZeroBased(validCombos(toCompose(i),1:end),validCombos(xp(j),1:end));
-            [~, index1] = ismember(comp1,validCombos,'rows');
-            compCycle(1,(i-1) * xpsize + j) = index1;
+            compCycle(1,(i-1) * xpsize + j) = table(toCompose(i),xp(j));
         end
     end
     
@@ -64,9 +58,7 @@ while(true)
     compCycle = id * ones(1,tCSize * ypsize);
     for i = 1:1:tCSize
         for j = 1:1:ypsize
-            comp1 = compositionZeroBased(validCombos(toCompose(i),1:end),validCombos(yp(j),1:end));
-            [~, index1] = ismember(comp1,validCombos,'rows');
-            compCycle(1,(i-1) * ypsize + j) = index1;
+            compCycle(1,(i-1) * ypsize + j) = table(toCompose(i),yp(j));
         end
     end
     compCycle = setdiff(unique(compCycle),closedSub);

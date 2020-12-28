@@ -9,3 +9,5 @@
 *.pdf
 /*.pdf
 /Kotlin/
+/*.csv
+*.csv

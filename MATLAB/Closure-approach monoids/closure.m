@@ -1,72 +1,79 @@
-function [closedSub] = closure(submonoid1,submonoid2,numElements)
+function [closedSub] = closure(x,y,numElements)
 %CLOSURE Find the closure of two submonoids
-%   Detailed explanation goes here
+%   Takes two submonoid arrays X = X' ∪ Core and Y = Y' ∪ Core, and returns
+%   X ∪ Y ∪ X'Y' ∪ X'Y'X' ∪ X'Y'X'Y' ∪ ... ∪ Y'X' ∪ Y'X'Y' ∪ Y'X'Y'X' ∪ ...
+%   Core = X ∩ Y, X' = X - Core, Y' = Y - Core.
 
 validCombos = allValidCombos(numElements);
+id = identity(numElements);
 
-newsub1 = setdiff(submonoid1,submonoid2);
-newsub2 = setdiff(submonoid2,submonoid1);
+xp = setdiff(x,y);
+yp = setdiff(y,x);
 
-if(isempty(newsub1))
-    sizesub1 = 0;
+if(isempty(xp))
+    xpsize = 0;
 else
-    sizesub1 = size(newsub1,2);
+    xpsize = size(xp,2);
 end
-if(isempty(newsub2))
-    sizesub2 = 0;
+if(isempty(yp))
+    ypsize = 0;
 else
-    sizesub2 = size(newsub2,2);
+    ypsize = size(yp,2);
 end
 
-closedSub = [newsub1,submonoid2];
-toBeAdded = [];
-for i=1:1:sizesub1
-    for j=1:1:sizesub2
-        comp1 = compositionZeroBased(validCombos(newsub1(i),1:end),validCombos(newsub2(j),1:end));
-        [logic, index1] = ismember(comp1,validCombos,'rows');
-        toBeAdded = [toBeAdded,index1];
-        
-        comp2 = compositionZeroBased(validCombos(newsub2(j),1:end),validCombos(newsub1(i),1:end));
-        [logic, index2] = ismember(comp2,validCombos,'rows');
-        toBeAdded = [toBeAdded,index2];
+closedSub = [xp,y];
+xpyp = id * ones(1,xpsize*ypsize);
+for i=1:1:xpsize
+    for j=1:1:ypsize
+        comp1 = compositionZeroBased(validCombos(xp(i),1:end),validCombos(yp(j),1:end));
+        [~, index1] = ismember(comp1,validCombos,'rows');
+        xpyp(1,(i-1)*ypsize + j) = index1;
     end
 end
-toBeAdded = setdiff(unique(toBeAdded),closedSub);
-closedSub = [closedSub,toBeAdded];
+xpyp = setdiff(unique(xpyp),closedSub);
+closedSub = [closedSub,xpyp];
+toCompose = [xpyp,yp];
 
-check = 1;
-while(check)
-    compCycle = [];
-    
-    if(isempty(toBeAdded))
-        toBeAddedSize = 0;
+while(true)
+    if(isempty(toCompose))
+        break;
     else
-        toBeAddedSize = size(toBeAdded,2);
+        tCSize = size(toCompose,2);
     end
     
-    if(isempty(closedSub))
-        closedSubSize = 0;
-    else
-        closedSubSize = size(closedSub,2);
+    compCycle = id * ones(1,tCSize * xpsize);
+    
+    for i = 1:1:tCSize
+        for j = 1:1:xpsize
+            comp1 = compositionZeroBased(validCombos(toCompose(i),1:end),validCombos(xp(j),1:end));
+            [~, index1] = ismember(comp1,validCombos,'rows');
+            compCycle(1,(i-1) * xpsize + j) = index1;
+        end
     end
     
-    for i = 1:1:toBeAddedSize
-        for j = 1:1:closedSubSize
-            comp1 = compositionZeroBased(validCombos(toBeAdded(i),1:end),validCombos(closedSub(j),1:end));
-            [logic, index1] = ismember(comp1,validCombos,'rows');
-            compCycle = [compCycle,index1];
-        
-            comp2 = compositionZeroBased(validCombos(closedSub(j),1:end),validCombos(toBeAdded(i),1:end));
-            [logic, index2] = ismember(comp2,validCombos,'rows');
-            compCycle = [compCycle,index2];
+    compCycle = setdiff(unique(compCycle),closedSub);
+    closedSub = [closedSub, compCycle];
+    toCompose = compCycle;
+    if(isempty(toCompose))
+        closedSub = sort(closedSub);
+        break;
+    else
+        tCSize = size(toCompose,2);
+    end
+    
+    compCycle = id * ones(1,tCSize * ypsize);
+    for i = 1:1:tCSize
+        for j = 1:1:ypsize
+            comp1 = compositionZeroBased(validCombos(toCompose(i),1:end),validCombos(yp(j),1:end));
+            [~, index1] = ismember(comp1,validCombos,'rows');
+            compCycle(1,(i-1) * ypsize + j) = index1;
         end
     end
     compCycle = setdiff(unique(compCycle),closedSub);
     closedSub = [closedSub, compCycle];
-    toBeAdded = compCycle;
-    check = ~isempty(compCycle);
+    toCompose = compCycle;
 end
-closedSub = sort(closedSub);
 
+closedSub = sort(closedSub);
 end
 

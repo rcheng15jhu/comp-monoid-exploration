@@ -1,6 +1,5 @@
 function [nonredundantCell] = redundantCell(processedCell)
-%REDUNDANTCELL Summary of this function goes here
-%   Detailed explanation goes here
+%REDUNDANTCELL Remove all redundant elements from a row cell
 redundantIndices = cell(1,0);
 for i = 1:1:size(processedCell,2)-1
     for j = i+1:1:size(processedCell,2)

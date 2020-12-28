@@ -72,4 +72,4 @@ while(~discontinueLoop)
     end
 end
 
-submonoidTables = submonoidTables(1:end,1:end-2);
+submonoidTables = submonoidTables(1:end,1:end-1);

@@ -1,4 +1,4 @@
-function [newCell,logic_difference] = inclusionDiff(cell,set)
+function [logic_difference,newCell] = inclusionDiff(cell,set)
 %CELLDIFF Check if a set is present within a cell of sets
     %Return cell + set, logic_difference = 1 if set is not in cell.
 

@@ -1,8 +1,8 @@
 function [closedSub] = closure(x,y,numElements,table)
-%CLOSURE Find the closure of two submonoids
-%   Takes two submonoid arrays X = X' ∪ Core and Y = Y' ∪ Core, and returns
-%   X ∪ Y ∪ X'Y' ∪ X'Y'X' ∪ X'Y'X'Y' ∪ ... ∪ Y'X' ∪ Y'X'Y' ∪ Y'X'Y'X' ∪ ...
-%   Core = X ∩ Y, X' = X - Core, Y' = Y - Core.
+%CLOSURE Finds the fast-closure of two submonoids
+%   Takes two submonoid arrays X = X' U Core and Y = Y' U Core, and returns
+%   X U Y U X'Y' U X'Y'X' U X'Y'X'Y' U ... U Y'X' U Y'X'Y' U Y'X'Y'X' U ...
+%   Core = X intersect Y, X' = X - Core, Y' = Y - Core.
 
 id = identity(numElements);
 xp = setdiff(x,y);

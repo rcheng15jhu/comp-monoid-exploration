@@ -1,10 +1,9 @@
-function [closedSub] = closure(x,y,numElements,table)
+function [closedSub] = closure(x,y,id,table)
 %CLOSURE Finds the fast-closure of two submonoids
 %   Takes two submonoid arrays X = X' U Core and Y = Y' U Core, and returns
 %   X U Y U X'Y' U X'Y'X' U X'Y'X'Y' U ... U Y'X' U Y'X'Y' U Y'X'Y'X' U ...
 %   Core = X intersect Y, X' = X - Core, Y' = Y - Core.
 
-id = identity(numElements);
 xp = setdiff(x,y);
 yp = setdiff(y,x);
 

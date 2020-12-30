@@ -1,7 +1,6 @@
-function [table] = compositionTable(numElements)
+function [table] = compositionTable(validCombos)
 %COMPOSITIONTABLE Summary of this function goes here
 %   Detailed explanation goes here
-validCombos = allValidCombos(numElements);
 
 table = zeros(size(validCombos,1),size(validCombos,1));
 for i = 1:1:size(validCombos,1)

@@ -4,13 +4,8 @@ function [closedSub] = closure(x,y,table,maxsize,id)
 %   Core U X' U X'Y' U X'Y'X' U X'Y'X'Y' U ... U Y' U Y'X' U Y'X'Y' U Y'X'Y'X' U ...
 %   Core = X intersect Y, X' = X - Core, Y' = Y - Core.
 
-xp = setdiff(x,y);
-xpsize = size(xp,2);
-yp = setdiff(y,x);
-ypsize = size(yp,2);
-
-closedSub = [xp,y];
-if(size(closedSub,2) <= maxsize)
+[xp,yp,closedSub,xpsize,ypsize] = fastSetDiff(x,y);
+if(size(closedSub,2) <= maxsize && size(xp,2) ~= 0 && size(yp,2) ~= 0)
     xpyp = id * ones(1,xpsize*ypsize);
     for i=1:1:xpsize
         for j=1:1:ypsize

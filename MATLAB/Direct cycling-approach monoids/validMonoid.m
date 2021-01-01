@@ -1,4 +1,4 @@
-function [finaltruth] = validMonoid(monoid)
+function [finaltruth] = validMonoid(monoid,table)
 %Get the array consisting of every row of the monoid composed with themselves.
 finaltruth = 1;
 msize = size(monoid,1);

@@ -4,10 +4,11 @@ clc;
 
 %Somewhat confusingly named; this is the number of elements within each
 %mapping (e.g. 5 for 11244, 3 for 132.)
-monoidsize = 4;
+monoidsize = 3;
 %Number of mappings within each submonoid.
-submonoidsize = 6;
+submonoidsize = 10;
 validCombos = allValidCombos(monoidsize);
+compTable = compositionTable(validCombos);
 
 identityNum = (monoidsize^monoidsize - monoidsize)/(monoidsize - 1)^2;
 identity = validCombos(identityNum,1:end);
@@ -30,7 +31,7 @@ validMonoids = 0;
 while(1)
     currentMonoid(2:end,1:end) = validCombos(indicesArray + 1,1:end);
     currentMonoid(1,1:end) = identity;
-    if(validMonoid(currentMonoid))
+    if(validMonoid(currentMonoid,compTable))
         validMonoids = validMonoids + 1;
         disp([num2str(validMonoids), ': ', num2str(indicesArray)]);
     end

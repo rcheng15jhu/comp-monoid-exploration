@@ -33,15 +33,18 @@ end
 fams = redundantCell(fams);
 clearvars onesCol idRow defArray index
 
+%HARDCODED FOR NOW
+maxHash = 513;
+
 %Create monoid table
-monTable = cell(0,0);
+monTable = cell(maxSize,1);
 %Populate table with empty cell column
 for i = 1:1:maxSize
-    monTable{i,1} = cell(0,0);
+    monTable{i,1} = cell(1,maxHash);
 end
 %Populate each empty cell with family of apt size
 for i = 1:1:size(fams,2)
-    monTable{size(fams{i},2),1}{end+1} = fams{i};
+    monTable{size(fams{i},2),1}{hashFun(fams{i})}{end+1} = fams{i};
 end
 clearvars fams
 
@@ -50,26 +53,40 @@ while(~dcLoop)
     dcLoop = 1;
     %Make new column
     monTable(1:end,end+1) = cell(maxSize,1);
-    for i = 2:1:maxSize-1
-        for j = 1:1:size(monTable{i,1},2)
-           for k = 2:1:maxSize-1
-               for m = 1:1:size(monTable{k,end-1},2)
-                    product = closure(monTable{i,1}{j},monTable{k,end-1}{m},compTable,maxSize,id);
-                    prodsize = size(product,2);
-                    if(prodsize <= maxSize)
-                        [logic,monTable{prodsize,end}] = inclusionDiff(monTable{kprodsize,end}, product);
-                        if logic == 1
-                            dcLoop = 0;
+    for i = 1:1:maxSize
+        monTable{i,end} = cell(1,maxHash);
+        for j = 1:1:maxHash
+            monTable{i,end}{j} = cell(1,0);
+        end
+    end
+    
+    for c1ind = 2:1:maxSize-1
+        for c1rhash = 1:1:size(monTable{c1ind,1},2)
+           for c1rhashind = 1:1:size(monTable{c1ind,1}{c1rhash},2)
+               for cendind = 2:1:maxSize-1
+                    for cendrhash = 1:1:maxHash
+                        for cendrhashind = 1:1:size(monTable{cendind,end-1}{cendrhash},2)
+                            product = closure(monTable{c1ind,1}{c1rhash}{c1rhashind},monTable{cendind,end-1}{cendrhash}{cendrhashind},compTable,maxSize,id);
+                            prodsize = size(product,2);
+                            if(prodsize <= maxSize)
+                                hash = hashFun(product);
+                                [logic,monTable{prodsize,end}{hash}] = inclusionDiff(monTable{prodsize,end}{hash}, product);
+                                if logic == 1
+                                    dcLoop = 0;
+                                end
+                            end
                         end
                     end
-                end
+               end
             end
         end
     end
     
     for i = 1:1:maxSize
         for j = 1:1:size(monTable,2)-1
-            monTable{i,end} = pruneCell(monTable{i,j},monTable{i,end});
+            for k = 1:1:size(monTable{i,j},2)
+                monTable{i,end}{k} = pruneCell(monTable{i,j}{k},monTable{i,end}{k});
+            end
         end
     end
 end
@@ -79,13 +96,10 @@ clearvars dcLoop logic product prodsize compTable combos i j k m id
 for i = 1:1:maxSize
     sizeI = 0;
     for j = 1:1:size(monTable,2)
-        if(isempty(monTable(i,j)))
-            sizeCell = 0;
-        else
-            sizeCell = size(monTable{i,j},2);
+        for k = 1:1:maxHash
+            sizeI = sizeI + size(monTable{i,j}{k},2);
         end
-        sizeI = sizeI + sizeCell;
     end
     disp([num2str(i),': ',num2str(sizeI)]);
 end
-clearvars i j sizeI sizeCell
+clearvars i j maxHash sizeI sizeCell

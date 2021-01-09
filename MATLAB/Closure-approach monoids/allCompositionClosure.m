@@ -34,7 +34,7 @@ fams = redundantCell(fams);
 clearvars onesCol idRow defArray index
 
 %HARDCODED FOR NOW
-maxHash = 513;
+maxHash = 511;
 
 %Create monoid table
 monTable = cell(maxSize,1);
@@ -60,13 +60,13 @@ while(~dcLoop)
         end
     end
     
-    for c1ind = 2:1:maxSize-1
-        for c1rhash = 1:1:size(monTable{c1ind,1},2)
-           for c1rhashind = 1:1:size(monTable{c1ind,1}{c1rhash},2)
-               for cendind = 2:1:maxSize-1
-                    for cendrhash = 1:1:maxHash
-                        for cendrhashind = 1:1:size(monTable{cendind,end-1}{cendrhash},2)
-                            product = closure(monTable{c1ind,1}{c1rhash}{c1rhashind},monTable{cendind,end-1}{cendrhash}{cendrhashind},compTable,maxSize,id);
+    for c1i = 2:1:maxSize-1
+        for c1rh = 1:1:size(monTable{c1i,1},2)
+           for c1rhi = 1:1:size(monTable{c1i,1}{c1rh},2)
+               for cei = 2:1:maxSize-1
+                    for cerh = 1:1:maxHash
+                        for cerhi = 1:1:size(monTable{cei,end-1}{cerh},2)
+                            product = closure(monTable{c1i,1}{c1rh}{c1rhi},monTable{cei,end-1}{cerh}{cerhi},compTable,maxSize,id);
                             prodsize = size(product,2);
                             if(prodsize <= maxSize)
                                 hash = hashFun(product);
@@ -90,7 +90,7 @@ while(~dcLoop)
         end
     end
 end
-clearvars dcLoop logic product prodsize compTable combos i j k m id
+clearvars dcLoop logic product prodsize compTable combos c1i c1rh c1rhi cei cerh cerhi hash id
 
 %Print out all found monoids
 for i = 1:1:maxSize
@@ -102,4 +102,4 @@ for i = 1:1:maxSize
     end
     disp([num2str(i),': ',num2str(sizeI)]);
 end
-clearvars i j maxHash sizeI sizeCell
+clearvars i j k maxHash sizeI sizeCell

@@ -13,6 +13,6 @@ function [isomorphs] = iso(combo)
                 end
             end
         end
-        [~,isomorphs] = inclusionDiff(isomorphs,curIso);
+        isomorphs{1,end+1} = curIso;
     end
 end

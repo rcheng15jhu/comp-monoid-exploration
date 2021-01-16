@@ -4,9 +4,9 @@ function [check] = testConsistency(table,print)
 
 numElements = size(table,1);
 check = 1;
-for a = 1:1:numElements
-    for b = 1:1:numElements
-        for c = 1:1:numElements
+for a = numElements:-1:1
+    for b = numElements:-1:1
+        for c = numElements:-1:1
             if compose(compose(a,b,table),c,table) ~= compose(a,compose(b,c,table),table)
                 check = 0;
                 break;

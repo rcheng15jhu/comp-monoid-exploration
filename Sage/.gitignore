@@ -1,5 +1,6 @@
 .cache
 .ccache
+.gnupg
 .ipynb_checkpoints
 .local
 .sage

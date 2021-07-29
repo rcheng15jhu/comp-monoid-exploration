@@ -8,7 +8,7 @@ for i = 1:1:maxSize
         ijCell = cell(1,0);
         for k = 1:1:size(oldTable{i,j},2)
             for m = 1:1:size(oldTable{i,j}{k},2)
-                [~,ijCell] = inclusionDiff(ijCell,oldTable{i,j}{k}{m});
+                [~,ijCell] = sortedDiff(ijCell,oldTable{i,j}{k}{m});
             end
         end
         monoidTable{i,j} = ijCell;

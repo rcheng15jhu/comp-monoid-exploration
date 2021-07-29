@@ -1,5 +1,5 @@
 function [closedSub] = closure(x,y,compTable,maxsize,id)
-%CLOSUREWITHCOMPTABLE Finds the fast-closure of two submonoids
+%CLOSURE Finds the fast-closure of two composition submonoids
 %   Takes submonoid arrays X, Y, and returns
 %   Core U X' U X'Y' U X'Y'X' U X'Y'X'Y' U ... U Y' U Y'X' U Y'X'Y' U Y'X'Y'X' U ...
 %   Core = X intersect Y, X' = X - Core, Y' = Y - Core.
@@ -53,7 +53,7 @@ if(size(closedSub,2) <= maxsize && xpsize ~= 0 && ypsize ~= 0)
     end
     closedSub = sort(closedSub);
 else
-    closedSub = zeros(1,maxsize + 1);
+    closedSub = -1;
 end
 
 end

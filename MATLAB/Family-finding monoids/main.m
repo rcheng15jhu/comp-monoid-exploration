@@ -1,7 +1,7 @@
 clear;
 clc;
 
-numMonoids = 4;
+numMonoids = 5;
 
 results = cell(1,0);
 indices = zeros(1,(numMonoids - 1)^2);

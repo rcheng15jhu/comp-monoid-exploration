@@ -1,0 +1,11 @@
+.cache
+.ccache
+.gnupg
+.ipynb_checkpoints
+.local
+.sage
+__pycache__
+.bash_history
+.sage
+.py
+lib

@@ -1,7 +1,11 @@
-function [hash] = hashFun(cell)
+function [hash] = hashFun(cell, max)
 %HASHFUN Summary of this function goes here
 %   Detailed explanation goes here
-k = cell(end) + cell(ceil(end/2)) + cell(1);
-hash = 1+mod(k,256)+mod(k,128);
+
+hash = 1;
+for i=1:1:size(cell,2)
+    hash = bitxor(2*hash,cell(i)+i);
+end
+hash = 1 + mod(hash,max);
 
 end

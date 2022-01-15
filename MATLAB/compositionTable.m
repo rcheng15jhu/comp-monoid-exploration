@@ -1,5 +1,5 @@
 function [table] = compositionTable(validCombos)
-%COMPOSITIONTABLE Summary of this function goes here
+%COMPOSITIONTABLE Generate a composition table from a list of valid combos.
 %   Detailed explanation goes here
 
 table = zeros(size(validCombos,1),size(validCombos,1));

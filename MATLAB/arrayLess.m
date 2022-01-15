@@ -1,5 +1,5 @@
 function [less] = arrayLess(a,b)
-%ARRAYLESS Summary of this function goes here
+%ARRAYLESS Check if one array is lexicographically less than the other
 %   Detailed explanation goes here
 less = false;
 for k = 1:1:size(a,2)

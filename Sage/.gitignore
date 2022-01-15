@@ -9,3 +9,8 @@ __pycache__
 .sage
 .py
 lib
+
+.config/
+.gitconfig
+.viminfo
+.vscode/

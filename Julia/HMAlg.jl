@@ -2,15 +2,18 @@ module HMAlg
 
 using Symbolics
 
-export HM, printHM
+export HM, genStaticHM, symbolicarray_fromsymbol, list_fromsymbol, view_fromsymbol, compose
 
-function HM(sz::Int...; symbol::Symbol)
-    (@variables $symbol[map(x -> 1:x, sz)...])[1]
+struct HM
+    Hx::Symbolics.Arr
+    function HM(ind_seq, symbol::Symbol)
+        new((@variables $symbol[ind_seq...])[1])
+    end
 end
 
-function HM(sz::AbstractRange{Int}...; symbol::Symbol)
-    (@variables $symbol[sz...])[1]
-end
+HM(sz::Int...; symbol::Symbol) = HM(map(x -> 1:x, sz), symbol)
+
+HM(sz::AbstractRange{Int}...; symbol::Symbol) = HM(sz, symbol)
 
 eltypes(::Type{Symbolics.Arr{T,D}}) where {T,D} = (T, D)
 eltypes(x::Symbolics.Arr) = eltypes(typeof(x))
@@ -19,7 +22,7 @@ Base.similar(A::AbstractArray, T::Type, dims::Tuple{AbstractRange{I}, Vararg{Abs
     
 Base.similar(f::Union{Function,DataType}, dims::Tuple{AbstractRange{I}, Vararg{AbstractRange{I}}}) where {I<:Int} = similar(f, tuple(map(x -> length(x), dims)...))
 
-function printHM(Hx::Symbolics.Arr{T,2}) where {T}
+function genStaticHM(Hx::Symbolics.Arr{T,2}) where {T}
     println("2 method called! ", Hx)
     if any(firstindex.([Hx],[1:2...]') .!= 1)
         r,c = size(Hx)
@@ -29,7 +32,7 @@ function printHM(Hx::Symbolics.Arr{T,2}) where {T}
     end
 end
 
-function printHM(Hx::Symbolics.Arr{T,D}, dim1=0, dim2=1, dpths=nothing) where {T,D}
+function genStaticHM(Hx::Symbolics.Arr{T,D}, dim1=0, dim2=1, dpths=nothing) where {T,D}
     println("general method called! ", Hx)
     if any(firstindex.([Hx],[1:D...]') .!= 1)
         [Hx[i] for i in CartesianIndex(repeat([1],D)...):CartesianIndex(size(Hx)...)]
@@ -38,6 +41,40 @@ function printHM(Hx::Symbolics.Arr{T,D}, dim1=0, dim2=1, dpths=nothing) where {T
     end
 end
 
+symbolicarray_fromsymbol(f) = arguments(Symbolics.value(f))[1]
 
+list_fromsymbol(f)::Vector = arguments(Symbolics.value(f))[2:end]
+
+view_fromsymbol(f) = @view arguments(Symbolics.value(f))[2:end]
+
+
+
+
+import Base.∘
+
+compose(fi::T...) where {T} = reduce(∘, fi) # This is where the type system breaks...
+
+vector_function(fi::Vector)::Function = x -> fi[x]
+
+eager_compose(f1::Vector, f2::Vector)::Vector = map(vector_function(f1),f2)
+
+function lazy_compose(fi::Vector...)::Vector
+    fcomposed = mapreduce(vector_function, ∘, fi)
+    [fcomposed(i) for i in 1:length(fi[1])]
+end
+
+compose(f1::Vector, f2::Vector)::Vector = eager_compose(f1, f2)
+
+∘(f1::Vector, f2::Vector)::Vector = compose(f1, f2)
+
+
+eager_compose(fi::Num...)::Num = symbolicarray_fromsymbol(fi[1])[compose((fi .|> list_fromsymbol)...)...]
+
+function lazy_compose(fi::Num...)::Num
+    fcomposed = mapreduce(vector_function ∘ list_fromsymbol, ∘, fi)
+    symbolicarray_fromsymbol(fi[1])[(fcomposed(i) for i in 1:length(list_fromsymbol(fi[1])))...]
+end
+
+compose(fi::Num...)::Num = eager_compose(fi...)
 
 end

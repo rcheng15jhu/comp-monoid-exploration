@@ -54,9 +54,9 @@ import Base.∘
 
 compose(fi::T...) where {T} = reduce(∘, fi) # This is where the type system breaks...
 
-vector_function(fi::Vector)::Function = x -> fi[x]
+indexable_function(fi)::Function = x -> fi[x]
 
-eager_compose(f1::Vector, f2::Vector)::Vector = map(vector_function(f1),f2)
+eager_compose(f1, f2) = map(indexable_function(f1),f2)
 
 function lazy_compose(fi::Vector...)::Vector
     fcomposed = mapreduce(vector_function, ∘, fi)
@@ -66,6 +66,10 @@ end
 compose(f1::Vector, f2::Vector)::Vector = eager_compose(f1, f2)
 
 ∘(f1::Vector, f2::Vector)::Vector = compose(f1, f2)
+
+(compose(f1::Tuple{Vararg{T}}, f2::Tuple{Vararg{T}})::Tuple{Vararg{T}}) where {T} = eager_compose(f1, f2)
+
+(∘(f1::Tuple{Vararg{T}}, f2::Tuple{Vararg{T}})::Tuple{Vararg{T}}) where {T} = compose(f1, f2)
 
 
 eager_compose(fi::Num...)::Num = symbolicarray_fromsymbol(fi[1])[compose((fi .|> list_fromsymbol)...)...]

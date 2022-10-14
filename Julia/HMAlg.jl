@@ -59,7 +59,7 @@ indexable_function(fi)::Function = x -> fi[x]
 eager_compose(f1, f2) = map(indexable_function(f1),f2)
 
 function lazy_compose(fi::Vector...)::Vector
-    fcomposed = mapreduce(vector_function, ∘, fi)
+    fcomposed = mapreduce(indexable_function, ∘, fi)
     [fcomposed(i) for i in 1:length(fi[1])]
 end
 
@@ -75,7 +75,7 @@ compose(f1::Vector, f2::Vector)::Vector = eager_compose(f1, f2)
 eager_compose(fi::Num...)::Num = symbolicarray_fromsymbol(fi[1])[compose((fi .|> list_fromsymbol)...)...]
 
 function lazy_compose(fi::Num...)::Num
-    fcomposed = mapreduce(vector_function ∘ list_fromsymbol, ∘, fi)
+    fcomposed = mapreduce(indexable_function ∘ list_fromsymbol, ∘, fi)
     symbolicarray_fromsymbol(fi[1])[(fcomposed(i) for i in 1:length(list_fromsymbol(fi[1])))...]
 end
 
